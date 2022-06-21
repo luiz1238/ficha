@@ -10,15 +10,15 @@ async function handler(req: NextApiRequest, res: NextApiResponseServerIO) {
 	}
 
 	const player = req.session.player;
+        const npcId: number | undefined = req.body.npcId;
 
-	if (!player) {
+	if (!player || (player.admin && !npcId)) {
 		res.status(401).end();
 		return;
 	}
 
 	const statusID: number | undefined = parseInt(req.body.attrStatusID);
 	const value: boolean | undefined = req.body.value;
-	const npcId: number | undefined = req.body.npcId;
 	
 	if (!statusID || value === undefined) {
 		res.status(401).send({ message: 'ID ou valor do status está em branco.' });
