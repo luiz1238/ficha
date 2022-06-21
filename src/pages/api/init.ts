@@ -96,13 +96,7 @@ const getDatabaseData = () => ({
 			name: 'Magia',
 			color: 'ae00ff',
 			rollable: false,
-		},
-		{
-			id: 4,
-			name: 'Armadura',
-			color: 'ffea00',
-			rollable: false,
-		},
+		},	
 	],
 	attribute_status: [
 		{
