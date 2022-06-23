@@ -14,6 +14,7 @@ import PlayerEquipmentContainer from '../../../components/Player/PlayerEquipment
 import PlayerInfoContainer from '../../../components/Player/PlayerInfoContainer';
 import PlayerItemContainer from '../../../components/Player/PlayerItemContainer';
 import PlayerSkillContainer from '../../../components/Player/PlayerSkillContainer';
+import PlayerSpecField from '../../../components/Player/PlayerSpecField';
 import PlayerSpellContainer from '../../../components/Player/PlayerSpellContainer';
 import { ErrorLogger, Socket } from '../../../contexts';
 import useSocket from '../../../hooks/useSocket';
@@ -86,9 +87,8 @@ function PlayerSheet(props: PageProps) {
 								playerName={props.player.name}
 								playerNameShow={props.player.showName}
 								playerInfo={props.player.PlayerInfo}
-								playerSpec={props.player.PlayerSpec}
 							/>
-							<Col>
+							<Col xs={12} sm={6}>
 								<PlayerAttributeContainer
 									playerAttributes={props.player.PlayerAttributes}
 									attributeDiceConfig={props.diceConfig.attribute}
@@ -97,6 +97,19 @@ function PlayerSheet(props: PageProps) {
 								/>
 							</Col>
 						</Row>
+                                                <hr />
+						<Row className='justify-content-center'>
+							{props.player.PlayerSpec.map((spec) => (
+								<Col key={spec.Spec.id} xs={6} md={4} lg={3} className='text-center mb-2'>
+									<PlayerSpecField
+										value={spec.value}
+										specId={spec.Spec.id}
+										name={spec.Spec.name}
+									/>
+									<label htmlFor={`spec${spec.Spec.id}`}>{spec.Spec.name}</label>
+								</Col>
+							))}
+						</Row> 
 						<Row className='mb-3'>
 							<DataContainer outline title='Características'>
 								<PlayerCharacteristicContainer
@@ -112,6 +125,7 @@ function PlayerSheet(props: PageProps) {
 								title='Combate'
 								availableEquipments={props.availableEquipments}
 								playerEquipments={props.player.PlayerEquipment}
+                                                                partners={props.partners}
 							/>
 						</Row>
 						<Row className='mb-3'>
@@ -130,6 +144,7 @@ function PlayerSheet(props: PageProps) {
 								availableItems={props.availableItems}
 								playerMaxLoad={props.player.maxLoad}
 								playerCurrency={props.player.PlayerCurrency}
+                                                                partners={props.partners}    
 							/>
 						</Row>
 						<Row className='mb-3'>
@@ -222,6 +237,16 @@ async function getSSP(ctx: GetServerSidePropsContext) {
 		}),
 		prisma.config.findUnique({ where: { name: 'dice' } }),
 		prisma.config.findUnique({ where: { name: 'enable_automatic_markers' } }),
+                prisma.player.findMany({
+			where: {
+				role: { in: ['PLAYER'] },
+				id: { not: player.id },
+			},
+			select: {
+				id: true,
+				name: true,
+			},
+		}),
 	]);
 
 	if (!results[0]) {
@@ -243,6 +268,7 @@ async function getSSP(ctx: GetServerSidePropsContext) {
 			availableSpells: results[4],
 			diceConfig: JSON.parse(results[5]?.value || 'null') as DiceConfig,
 			automaticMarking: results[6]?.value === 'true' ? true : false,
+                        partners: results[7], 
 		},
 	};
 }
